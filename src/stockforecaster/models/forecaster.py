@@ -1,23 +1,37 @@
 from prophet import Prophet
 import pandas as pd
+from typing import Optional
 
 class StockForecaster:
+    """A class to forecast stock prices using Prophet."""
+    
     def __init__(self):
-        self.model = Prophet(daily_seasonality=True)
+        """Initialize the forecaster with default Prophet settings."""
+        self.model = Prophet(
+            daily_seasonality=True,
+            weekly_seasonality=True,
+            yearly_seasonality=True
+        )
         
-    def prepare_data(self, stock_data):
-        """Prepare data for Prophet format"""
-        df = stock_data.reset_index()
-        df.columns = ['ds', 'y']
-        return df
+    def train(self, data: pd.DataFrame) -> None:
+        """
+        Train the Prophet model.
         
-    def train(self, stock_data):
-        """Train the forecasting model"""
-        df = self.prepare_data(stock_data)
-        self.model.fit(df)
+        Args:
+            data (pd.DataFrame): Training data with 'ds' and 'y' columns
+        """
+        self.model.fit(data)
         
-    def forecast(self, days=30):
-        """Generate forecast for specified number of days"""
-        future_dates = self.model.make_future_dataframe(periods=days)
-        forecast = self.model.predict(future_dates)
-        return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
+    def forecast(self, days: int = 30) -> pd.DataFrame:
+        """
+        Generate forecast for specified number of days.
+        
+        Args:
+            days (int): Number of days to forecast
+            
+        Returns:
+            pd.DataFrame: Forecast results
+        """
+        future = self.model.make_future_dataframe(periods=days)
+        forecast = self.model.predict(future)
+        return forecast

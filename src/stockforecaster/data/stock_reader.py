@@ -1,23 +1,45 @@
 import yfinance as yf
 import pandas as pd
-from datetime import datetime, timedelta
+from typing import Optional
 
 class StockReader:
-    def __init__(self, ticker="MSFT"):
+    """A class to fetch and prepare stock data for forecasting."""
+    
+    def __init__(self, ticker: str = "MSFT", period: str = "5y"):
+        """
+        Initialize the StockReader.
+        
+        Args:
+            ticker (str): Stock ticker symbol (default: "MSFT")
+            period (str): Data fetch period (default: "5y")
+        """
         self.ticker = ticker
-        self.stock = yf.Ticker(ticker)
-
-    def get_latest_price(self):
-        """Fetch the latest closing price"""
-        data = self.stock.history(period="1d")
-        return data['Close'].iloc[-1]
-
-    def fetch_data(self, start_date=None, end_date=None):
-        """Retrieve historical stock data"""
-        if not start_date:
-            start_date = datetime.now() - timedelta(days=365)
-        if not end_date:
-            end_date = datetime.now()
-            
-        data = self.stock.history(start=start_date, end=end_date)
-        return data[['Close']]
+        self.period = period
+        
+    def fetch_data(self) -> pd.DataFrame:
+        """
+        Fetch stock data and prepare it for Prophet.
+        
+        Returns:
+            pd.DataFrame: DataFrame with 'ds' (date) and 'y' (close price) columns
+        """
+        # Fetch data
+        ticker = yf.Ticker(self.ticker)
+        df = ticker.history(period=self.period)
+        
+        # Reset index to make date a column
+        df = df.reset_index()
+        
+        # Remove timezone information
+        df['Date'] = df['Date'].dt.tz_localize(None)
+        
+        # Rename columns to Prophet requirements
+        df = df.rename(columns={
+            'Date': 'ds',
+            'Close': 'y'
+        })
+        
+        # Select only required columns
+        df = df[['ds', 'y']]
+        
+        return df

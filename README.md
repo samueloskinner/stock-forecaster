@@ -21,8 +21,8 @@ pip install -e .
 ## Usage
 
 ```python
-from stock_forecaster.data.stock_reader import StockReader
-from stock_forecaster.models.forecaster import StockForecaster
+from stockforecaster.data.stock_reader import StockReader
+from stockforecaster.models.forecaster import StockForecaster
 
 # Initialize reader
 reader = StockReader(ticker="MSFT")
