@@ -27,11 +27,9 @@ class StockReader:
         ticker = yf.Ticker(self.ticker)
         df = ticker.history(period=self.period)
         
-        # Reset index to make date a column
+        # Reset index to make date a column and convert to datetime without timezone
         df = df.reset_index()
-        
-        # Remove timezone information
-        df['Date'] = df['Date'].dt.tz_localize(None)
+        df['Date'] = pd.to_datetime(df['Date']).dt.tz_localize(None)
         
         # Rename columns to Prophet requirements
         df = df.rename(columns={

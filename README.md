@@ -34,6 +34,11 @@ data = reader.fetch_data()
 forecaster = StockForecaster()
 forecaster.train(data)
 forecast = forecaster.forecast(days=30)
+
+# Plot the forecast
+forecaster.model.plot(forecast)
+import matplotlib.pyplot as plt
+plt.show()
 ```
 
 ## Docker Usage
